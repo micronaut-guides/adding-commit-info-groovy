@@ -1,0 +1,3 @@
+include::{commondir}/common-create-app-groovy.adoc[]
+
+include::{commondir}/common-annotationprocessors.adoc[]

@@ -1,27 +1,27 @@
 package example.micronaut
 
-import io.micronaut.context.ApplicationContext
+
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.RxHttpClient
-import io.micronaut.runtime.server.EmbeddedServer
-import spock.lang.AutoCleanup
+import io.micronaut.http.client.annotation.Client
+import io.micronaut.test.annotation.MicronautTest
 import spock.lang.Shared
 import spock.lang.Specification
 
+import javax.inject.Inject
+
+@MicronautTest // <1>
 class InfoSpec extends Specification {
 
     @Shared
-    @AutoCleanup // <1>
-    EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)  // <2>
+    @Client("/")
+    @Inject
+    RxHttpClient client // <2>
 
-    @Shared
-    @AutoCleanup
-    RxHttpClient client = embeddedServer.applicationContext.createBean(RxHttpClient, embeddedServer.getURL()) // <3>
-
-    def "test git commit info appears in JSON"() {
+    void 'test git commit info appears in JSON'() {
         given:
-        HttpRequest request = HttpRequest.GET('/info') // <4>
+        HttpRequest request = HttpRequest.GET('/info') // <3>
 
         when:
         HttpResponse<Map> rsp = client.toBlocking().exchange(request, Map)
@@ -30,7 +30,7 @@ class InfoSpec extends Specification {
         rsp.status().code == 200
 
         when:
-        Map json = rsp.body() // <5>
+        Map json = rsp.body() // <4>
 
         then:
         json.git
